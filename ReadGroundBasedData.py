@@ -18,12 +18,13 @@ __author__ = 'zemarchezi'
 
 class ReadCarisma():
     """docstring for ReadGrBasedData."""
-    def __init__(self, inidate='', enddate=''):
+    def __init__(self, inidate='', enddate='', station==''):
         # Initial time
         self.ini = inidate
         ###
         # End time
         self.end = enddate
+        self.station = station
 
 
     def directories(self, downlDir, plotDir):
@@ -43,9 +44,10 @@ class ReadCarisma():
         ####
         ## Define o diretório e nome dos arquivos que serão abertos
         #
-        filen = '%04d-%02d-%02d*%04d-%02d-%02d*/%04d%02d%02d*' %(self.ini.year, self.ini.month,
+        filen = '%04d-%02d-%02d*%04d-%02d-%02d*/%04d%02d%02d*%s*' %(self.ini.year, self.ini.month,
                                                   self.ini.day,self.end.year, self.end.month,self.end.day,
-                                                  self.ini.year,self.ini.month,self.ini.day)
+                                                  self.ini.year,self.ini.month,self.ini.day,
+                                                  self.station)
         self.filename = self.dataDownlDir + filen
         print(self.filename)
         self.files = glob.glob(self.filename)
