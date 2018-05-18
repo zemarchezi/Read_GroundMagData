@@ -18,7 +18,7 @@ __author__ = 'zemarchezi'
 
 class ReadCarisma():
     """docstring for ReadGrBasedData."""
-    def __init__(self, inidate='', enddate='', station==''):
+    def __init__(self, inidate='', enddate='', station=''):
         # Initial time
         self.ini = inidate
         ###
