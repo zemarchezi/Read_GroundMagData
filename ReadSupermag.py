@@ -51,7 +51,7 @@ class ReadSupermag(object):
             f = open(self.filename, 'r')
             self.data = f.readlines()
             f.close()
-            self.stations = filter(lambda x: '-mlt' in x, self.data)[0].split('-mlt')
+            self.stations = list(filter(lambda x: '-mlt' in x, self.data))[0].split('-mlt')
 
             # print(len(time))
             year = self.stations[1][17:21]
@@ -73,13 +73,14 @@ class ReadSupermag(object):
             for i in range(0,len(stat)):
                 self.stations.append(stat[i])
 
+            self.time = self.data.IAGA[self.data.IAGA == self.stations[0]].index
 
     def readData(self):
         if self.filen.split('.')[1] == 'txt':
             x, y, z = [], [], []
             for i in self.stations:
                 temp_x, temp_y, temp_z = [], [], []
-                d = filter(lambda x: i+'\t' in x, self.data)
+                d = list(filter(lambda x: i+'\t' in x, self.data))
                 for k in d:
                     temp_x.append(float(((k.split('\n')[0]).split('\t'))[1]))
                     temp_y.append(float(((k.split('\n')[0]).split('\t'))[2]))
@@ -95,5 +96,14 @@ class ReadSupermag(object):
             return ([self.north, self.east , self.down, self.station])
 
         if self.filen.split('.')[1] == 'csv':
+            temp_x, temp_y, temp_z = [], [], []
+            for i in self.stations:
+                temp_x.append(self.data[self.data.IAGA == i]['N'])
+                temp_y.append(self.data[self.data.IAGA == i]['E'])
+                temp_z.append(self.data[self.data.IAGA == i]['Z'])
 
-            return ([self.data, self.stations])
+            self.north = pd.DataFrame(data=np.transpose(temp_x), columns=self.stations, index=self.time)
+            self.east = pd.DataFrame(data=np.transpose(temp_y), columns=self.stations, index=self.time)
+            self.down = pd.DataFrame(data=np.transpose(temp_z), columns=self.stations, index=self.time)
+
+            return ([self.north, self.east, self.down])
