@@ -1,12 +1,12 @@
-from ReadIntermagnet import ReadIntermagnet
+from Read_GroundMagData import ReadIntermagnet
 import datetime
 import matplotlib.pyplot as plt
 from DataDownloader import DataDownloader
 import os, re, ssl, urllib, sys, fnmatch
 # inidate=datetime.datetime(2016,6,24,0,0), enddate=datetime.datetime(2016,6,28,0,0),
 
-station = 'fcc'
-year = '2016'
+station = 'kou'
+year = '2015'
 month = '05'
 days = ['23']
 host = 'ftp.intermagnet.org' # ftp host name
@@ -54,7 +54,5 @@ x = rd.readInfo()
 
 # x = rd.readData()
 
-print(x[0])
-
-# x[1].plot(sharex=True, subplots=True)
-# plt.show()
+x[0].plot(sharex=True, subplots=True, y=['KOUX', 'KOUY', 'KOUZ'])
+plt.show()
