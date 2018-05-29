@@ -10,6 +10,9 @@ import datetime
 import os
 import glob
 import pandas  as pd
+import sys
+sys.path.insert(0, '/home/jose/MEGA/Doutorado/Progs/SignalAnalysis')
+from analysisFunc import geo2mag
 
 __author__ = 'zemarchezi'
 
@@ -55,7 +58,7 @@ class ReadCarisma():
         ######
         ## Abre os arquivos e extrai as componentes
         #
-        latitude = []
+        latitude, lshell = [], []
         x, y, z, h, mh, t, stations = [], [], [], [], [], [], []
         for i in self.files:
             print(i)
@@ -83,6 +86,9 @@ class ReadCarisma():
 
                 station = [ss[0]]*len(time) # Create an list with the stations names
                 lat = [ss[2]]* len(time) # Create a list with the corresponding latitudes
+                magc = geo2mag([float(ss[2]), float(ss[3])])
+                l = [(np.sin(np.deg2rad(90-float(magc[0])))) ** (-2)] * len(time) # McIlwain parameter
+
 
                 ## Create an list with the components for each station
                 t.extend(time) # time array
@@ -93,6 +99,7 @@ class ReadCarisma():
                 mh.extend(temp_mh) # mean variation of H component
                 stations.extend(station)
                 latitude.extend(lat)
+                lshell.extend(l)
             except (Exception) as e:
                 print (e)
 
@@ -100,6 +107,7 @@ class ReadCarisma():
         dd = pd.DataFrame(np.transpose([x,y,z,h,mh]), index=t,columns=['x', 'y', 'z', 'h', 'mean_h'])
         dd['stat'] = stations
         dd['lat'] = latitude
+        dd['lshell'] = lshell
         self.dd = dd.drop_duplicates()
 #            dat.append(dd.to_dict())
         return (self.dd)
@@ -108,18 +116,23 @@ class ReadCarisma():
     def separateStat(self):
         stat = []
         llat = []
+        lsh = []
         for i in self.day_arr:
             stat.append(set(self.dd['stat'][self.dd.index==i]))
             llat.append(set(self.dd['lat'][self.dd.index==i]))
+            lsh.append(set(self.dd['lshell'][self.dd.index==i]))
 
         self.eqStat = list(set.intersection(*stat))
         self.eqlat = list(set.intersection(*llat))
+        self.eqlshell = list(set.intersection(*lsh))
 
         ######
         ## Sort the stations according to the latitudes, from higher to lower
         #
         stat = dict(zip(self.eqStat, self.eqlat))
         print (stat)
+        shell = dict(zip(self.eqStat, self.eqlshell))
+        print shell
         self.eqStat.sort(key=stat.get, reverse=True)
 
         xAllStat = pd.DataFrame()
